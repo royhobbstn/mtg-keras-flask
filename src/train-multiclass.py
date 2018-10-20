@@ -1,5 +1,3 @@
-
-
 import sys
 import os
 from keras.preprocessing.image import ImageDataGenerator
@@ -28,21 +26,21 @@ Parameters
 
 img_width, img_height = 400, 400
 
-nb_train_samples = 2285
-nb_validation_samples = 283
+nb_train_samples = 2285*3
+nb_validation_samples = 283*3
 batch_size = 32
 
 
-nb_filters1 = 32
-nb_filters2 = 64
+nb_filters1 = 64
+nb_filters2 = 128
 conv1_size = 3
 conv2_size = 2
 pool_size = 2
 classes_num = 8
-lr = 0.0004
+lr = 0.0001
 
 
-input_shape = (img_height, img_width, 3)
+input_shape = (img_height, img_width, 1)
 
 model = Sequential()
 model.add(Conv2D(nb_filters1, (conv1_size, conv1_size), padding='same', input_shape=input_shape))
@@ -53,10 +51,14 @@ model.add(Conv2D(nb_filters2, (conv2_size, conv2_size), padding='same'))
 model.add(Activation("relu"))
 model.add(MaxPooling2D(pool_size=(pool_size, pool_size)))
 
+model.add(Conv2D(nb_filters2, (conv2_size, conv2_size), padding='same'))
+model.add(Activation("relu"))
+model.add(MaxPooling2D(pool_size=(pool_size, pool_size)))
+
 model.add(Flatten())
 model.add(Dense(256))
 model.add(Activation("relu"))
-model.add(Dropout(0.5))
+model.add(Dropout(0.2))
 model.add(Dense(classes_num, activation='softmax'))
 
 model.compile(loss='categorical_crossentropy',
@@ -65,6 +67,7 @@ model.compile(loss='categorical_crossentropy',
 
 
 p = Augmentor.Pipeline(source_directory="../train")
+p.greyscale(probability=1)
 p.resize(probability=1, width=610, height=800, resample_filter=u'BICUBIC')
 p.zoom(probability=1, min_factor=0.55, max_factor=0.55)
 p.rotate_without_crop(probability=1, max_left_rotation=90, max_right_rotation=90)
@@ -76,6 +79,7 @@ p.resize(probability=1, width=400, height=400, resample_filter=u'BICUBIC')
 g_train = p.keras_generator(batch_size=32)
 
 q = Augmentor.Pipeline(source_directory="../validate")
+q.greyscale(probability=1)
 q.resize(probability=1, width=610, height=800, resample_filter=u'BICUBIC')
 q.zoom(probability=1, min_factor=0.55, max_factor=0.55)
 q.rotate_without_crop(probability=1, max_left_rotation=90, max_right_rotation=90)
