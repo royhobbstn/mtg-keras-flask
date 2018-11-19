@@ -93,6 +93,8 @@ def prepare_image(image, target):
     image = image.resize(target)
     image = img_to_array(image)
     image = np.expand_dims(image, axis=0)
+    image /= 255.
+    print(image)
     return image
 
 @app.route("/predict", methods=["POST"])
@@ -118,10 +120,10 @@ def predict():
             print(labels)
             print(type(labels))
 
-            for result in preds[0]:
+            for index, result in enumerate(preds[0]):
                 probability = float(result)
-                if probability > 0.0:
-                    r = {"label": labels[str(np.argmax(preds[0]))], "probability": probability}
+                if probability > 0.001:
+                    r = {"label": labels[str(index)], "probability": probability}
                     data["predictions"].append(r)
 
             data["success"] = True

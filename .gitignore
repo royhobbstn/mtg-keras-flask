@@ -4,3 +4,4 @@ test-data/*
 tf-log/*
 models/*
 config.json
+samples
